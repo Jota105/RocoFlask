@@ -76,5 +76,4 @@ class SpeachToText(Resource):
 
 class home(Resource):
     def get(self):
-        a = os.path.join('../../WATSON_CODE')
-        return {"message": [name for name in os.listdir(os.path.join('./../WATSON_CODE')) if os.path.isdir(name)]}
+        return {"message": "Running bitch"}
