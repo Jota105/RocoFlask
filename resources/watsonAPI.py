@@ -4,6 +4,10 @@ from watson_developer_cloud import TextToSpeechV1
 from watson_developer_cloud import SpeechToTextV1
 from watson_developer_cloud import AssistantV1
 from watson_developer_cloud.assistant_v1 import Context
+from watson_developer_cloud import NaturalLanguageUnderstandingV1
+from watson_developer_cloud.natural_language_understanding_v1 import Features, EmotionOptions,EntitiesOptions,KeywordsOptions
+from watson_developer_cloud import LanguageTranslatorV2
+
 
 class Watson_API:
     def __init__(self, credentials_file):
@@ -13,7 +17,7 @@ class Watson_API:
         url      = self.credentials[service_name][0]['credentials']['url']
         username = self.credentials[service_name][0]['credentials']['username']
         password = self.credentials[service_name][0]['credentials']['password']
-        if service_name == 'conversation':
+        if service_name == 'conversation' or service_name== "natural_language_understanding":
             return service(kwargs['version'], url, username, password)
         return service(url, username, password)
 
@@ -39,6 +43,27 @@ class Watson_API:
     def list_models(self):
         speech2text = self.init_service(SpeechToTextV1, 'speech_to_text')
         return [model['name'] for model in speech2text.list_models()['models']]
+
+    def get_emotions(self, message):
+        version='2018-03-16'
+        analyzer = self.init_service(NaturalLanguageUnderstandingV1,'natural_language_understanding', version=version)
+        response = analyzer.analyze(text=message,features=Features(
+                    entities=EntitiesOptions(
+                      emotion=True,
+                      sentiment=True,
+                      limit=2),
+                    keywords=KeywordsOptions(
+                      emotion=True,
+                      sentiment=True,
+                      limit=2)))
+        print(json.dumps(response, indent=2))
+
+    def translate(self, message):
+        translator = self.init_service(LanguageTranslatorV2, 'natural_language_translator')
+        translation = translator.translate(text=message, model_id='es-en')
+        return translation['translations'][0]
+        #print(json.dumps(translation, indent=2, ensure_ascii=False))
+
 
     def send_message(self, message, index=0, context=None, output_index=0):
         pattern = re.compile('version=(\d+-\d+-\d+)')
@@ -66,4 +91,4 @@ class Watson_API:
         print('Output >', text_output)
         if len(text_output) > 0:
             self.text_to_speech(text_output, audio_output)
-        return context_id
+        return context_id, text_output

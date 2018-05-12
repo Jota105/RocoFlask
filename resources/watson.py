@@ -47,11 +47,11 @@ class Watson(Resource):
         f.write(bytes_audio)
         f.close()
 
-        id_conversation = self.watson.roco_endpoint(input_file, output_file)
+        id_conversation, text = self.watson.roco_endpoint(input_file, output_file)
 
         # Leer el archivo que fue generado
         ifile = open(output_file, 'rb')
         bytes_audio = ifile.read()
         ifile.close()
 
-        return {"id_conversation": id_conversation, "message": base64.b64encode(bytes_audio).decode('utf-8')}
+        return {"id_conversation": id_conversation, "message": base64.b64encode(bytes_audio).decode('utf-8'), "text": text}
