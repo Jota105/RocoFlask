@@ -29,11 +29,14 @@ class Watson(Resource):
     parser.add_argument('_id',
         type=int,
         required=True,
-        help="Every item needs a store_id."
+        help="Every item needs a store_id.",
+        location='form'
     )
 
     def post(self):
         data = Watson.parser.parse_args()
+
+        #return {"message": str(data['_id'])}
 
         assets_path = os.path.join('./assets/', str(data['_id']) )
         input_file = os.path.join(assets_path, 'input.mp3'  )
